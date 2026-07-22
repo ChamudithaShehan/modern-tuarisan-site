@@ -1,21 +1,18 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Star, Quote, CheckCircle2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Star, Quote, CheckCircle2 } from 'lucide-react';
 import { REVIEWS } from '../../data/reviewsData';
+import { Review } from '../../types';
 
 export default function ClientReviews() {
-  const carouselRef = useRef<HTMLDivElement>(null);
+  const [isHovered, setIsHovered] = useState(false);
 
-  const scrollCarousel = (direction: 'left' | 'right') => {
-    if (!carouselRef.current) return;
-    const scrollAmount = carouselRef.current.clientWidth * 0.85;
-    carouselRef.current.scrollBy({
-      left: direction === 'left' ? -scrollAmount : scrollAmount,
-      behavior: 'smooth',
-    });
-  };
+  // Divide reviews into 3 columns for animated vertical scroll
+  const col1 = [...REVIEWS, ...REVIEWS];
+  const col2 = [...REVIEWS.slice().reverse(), ...REVIEWS.slice().reverse()];
+  const col3 = [...REVIEWS.slice(2), ...REVIEWS.slice(0, 2), ...REVIEWS.slice(2), ...REVIEWS.slice(0, 2)];
 
   return (
     <section id="reviews" className="py-20 sm:py-24 bg-[#FAFAF9] relative overflow-hidden">
@@ -23,7 +20,7 @@ export default function ClientReviews() {
       <div className="absolute inset-0 bg-tropical-pattern opacity-40 pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-16">
+        <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
           <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#0F766E]/10 text-[#0F766E] text-xs font-bold uppercase tracking-widest mb-3">
             <Star className="w-3.5 h-3.5 fill-[#D4AF37] text-[#D4AF37]" /> 5.0 Star Rated Experience
           </div>
@@ -35,86 +32,125 @@ export default function ClientReviews() {
           </p>
         </div>
 
-        {/* Mobile Swipe Navigation Controls */}
-        <div className="flex md:hidden items-center justify-between mb-4 px-2 text-xs">
-          <span className="text-[#0F766E] font-bold uppercase tracking-wider">
-            👉 Swipe Guest Reviews ({REVIEWS.length})
-          </span>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => scrollCarousel('left')}
-              className="w-8 h-8 rounded-full bg-white shadow border border-gray-200 flex items-center justify-center text-gray-700"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => scrollCarousel('right')}
-              className="w-8 h-8 rounded-full bg-white shadow border border-gray-200 flex items-center justify-center text-gray-700"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-
-        {/* Reviews Glass Grid / Mobile Horizontal Snap Carousel */}
+        {/* Seamless Integrated Vertical Testimonials Flow (NO BORDER, BLENDED INTO PAGE) */}
         <div
-          ref={carouselRef}
-          className="flex md:grid md:grid-cols-2 gap-6 overflow-x-auto md:overflow-x-visible snap-x snap-mandatory md:snap-none pb-6 md:pb-0 scrollbar-none"
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+          className="relative h-[640px] overflow-hidden"
         >
-          {REVIEWS.map((rev, index) => (
-            <motion.div
-              key={rev.id}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="w-[85vw] sm:w-[70vw] md:w-full flex-shrink-0 snap-center glass-card p-6 sm:p-8 rounded-3xl border border-gray-200/80 hover:border-[#D4AF37] shadow-xl transition-all duration-300 relative flex flex-col justify-between"
-            >
-              <Quote className="absolute top-6 right-6 w-10 h-10 text-[#D4AF37]/20 pointer-events-none" />
+          {/* Top & Bottom Seamless Page Fade Gradients */}
+          <div className="absolute top-0 inset-x-0 h-28 bg-gradient-to-b from-[#FAFAF9] via-[#FAFAF9]/90 to-transparent z-20 pointer-events-none" />
+          <div className="absolute bottom-0 inset-x-0 h-28 bg-gradient-to-t from-[#FAFAF9] via-[#FAFAF9]/90 to-transparent z-20 pointer-events-none" />
 
-              <div>
-                {/* Rating & Date */}
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-1">
-                    {[...Array(rev.rating)].map((_, i) => (
-                      <Star key={i} className="w-3.5 h-3.5 fill-[#F59E0B] text-[#F59E0B]" />
-                    ))}
-                  </div>
-                  <span className="text-[10px] text-gray-500 font-semibold flex items-center gap-1">
-                    <CheckCircle2 className="w-3 h-3 text-emerald-600" /> {rev.date}
-                  </span>
-                </div>
+          {/* 3 Seamless Infinite Vertical Columns */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 h-full">
+            {/* Column 1 (Scrolls Upward) */}
+            <div className="overflow-hidden">
+              <motion.div
+                animate={{
+                  y: isHovered ? [0, 0] : ['0%', '-50%'],
+                }}
+                transition={{
+                  duration: 32,
+                  ease: 'linear',
+                  repeat: Infinity,
+                }}
+                className="space-y-6"
+              >
+                {col1.map((rev, idx) => (
+                  <ReviewCard key={`c1-${idx}`} rev={rev} />
+                ))}
+              </motion.div>
+            </div>
 
-                <h3 className="text-base sm:text-lg font-serif font-bold text-gray-900 mb-2">
-                  {rev.title}
-                </h3>
+            {/* Column 2 (Scrolls Downward) */}
+            <div className="hidden md:block overflow-hidden">
+              <motion.div
+                animate={{
+                  y: isHovered ? [0, 0] : ['-50%', '0%'],
+                }}
+                transition={{
+                  duration: 38,
+                  ease: 'linear',
+                  repeat: Infinity,
+                }}
+                className="space-y-6"
+              >
+                {col2.map((rev, idx) => (
+                  <ReviewCard key={`c2-${idx}`} rev={rev} />
+                ))}
+              </motion.div>
+            </div>
 
-                <p className="text-xs text-gray-600 leading-relaxed italic mb-5">
-                  "{rev.text}"
-                </p>
-              </div>
-
-              <div className="pt-4 border-t border-gray-200/60 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <img src={rev.avatar} alt={rev.author} className="w-10 h-10 rounded-full object-cover border-2 border-[#D4AF37]" />
-                  <div>
-                    <h4 className="text-xs font-bold text-gray-900 flex items-center gap-1">
-                      <span>{rev.author}</span>
-                      <span>{rev.flag}</span>
-                    </h4>
-                    <span className="text-[10px] text-gray-500">{rev.country}</span>
-                  </div>
-                </div>
-
-                <div className="text-right">
-                  <span className="text-[10px] text-[#0F766E] font-bold block">{rev.tourTaken}</span>
-                  <span className="text-[9px] text-gray-400 font-medium">{rev.vehicleBooked}</span>
-                </div>
-              </div>
-            </motion.div>
-          ))}
+            {/* Column 3 (Scrolls Upward) */}
+            <div className="hidden lg:block overflow-hidden">
+              <motion.div
+                animate={{
+                  y: isHovered ? [0, 0] : ['0%', '-50%'],
+                }}
+                transition={{
+                  duration: 34,
+                  ease: 'linear',
+                  repeat: Infinity,
+                }}
+                className="space-y-6"
+              >
+                {col3.map((rev, idx) => (
+                  <ReviewCard key={`c3-${idx}`} rev={rev} />
+                ))}
+              </motion.div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
+  );
+}
+
+function ReviewCard({ rev }: { rev: Review }) {
+  return (
+    <div className="p-6 sm:p-7 rounded-3xl bg-white border border-gray-200/90 shadow-md hover:shadow-2xl hover:border-[#D4AF37] transition-all duration-300 relative flex flex-col justify-between">
+      <Quote className="absolute top-5 right-5 w-8 h-8 text-[#D4AF37]/20 pointer-events-none" />
+
+      <div>
+        {/* Rating Stars & Date */}
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-1">
+            {[...Array(rev.rating)].map((_, i) => (
+              <Star key={i} className="w-3.5 h-3.5 fill-[#F59E0B] text-[#F59E0B]" />
+            ))}
+          </div>
+          <span className="text-[10px] text-gray-500 font-semibold flex items-center gap-1">
+            <CheckCircle2 className="w-3 h-3 text-emerald-600" /> {rev.date}
+          </span>
+        </div>
+
+        <h4 className="text-base font-serif font-bold text-gray-900 mb-2 leading-snug">
+          {rev.title}
+        </h4>
+
+        <p className="text-xs text-gray-600 leading-relaxed italic mb-4">
+          "{rev.text}"
+        </p>
+      </div>
+
+      <div className="pt-3 border-t border-gray-100 flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <img src={rev.avatar} alt={rev.author} className="w-9 h-9 rounded-full object-cover border-2 border-[#D4AF37]" />
+          <div>
+            <h5 className="text-xs font-bold text-gray-900 flex items-center gap-1">
+              <span>{rev.author}</span>
+              <span>{rev.flag}</span>
+            </h5>
+            <span className="text-[10px] text-gray-500">{rev.country}</span>
+          </div>
+        </div>
+
+        <div className="text-right">
+          <span className="text-[10px] text-[#0F766E] font-bold block">{rev.tourTaken}</span>
+          <span className="text-[9px] text-gray-400 font-medium">{rev.vehicleBooked}</span>
+        </div>
+      </div>
+    </div>
   );
 }

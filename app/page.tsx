@@ -1,65 +1,232 @@
-import Image from "next/image";
+'use client';
+
+import { useState } from 'react';
+import Preloader from './components/Preloader';
+import Navbar from './components/Navbar';
+import Hero from './components/Hero';
+import Stats from './components/Stats';
+import WhyChooseUs from './components/WhyChooseUs';
+import VehicleFleet from './components/VehicleFleet';
+import TourPackages from './components/TourPackages';
+import Destinations from './components/Destinations';
+import InteractiveMap from './components/InteractiveMap';
+import AvailabilityCalendar from './components/AvailabilityCalendar';
+import AirportFareEstimator from './components/AirportFareEstimator';
+import OurServices from './components/OurServices';
+import BookingProcess from './components/BookingProcess';
+import OurJourney from './components/OurJourney';
+import Gallery from './components/Gallery';
+import ClientReviews from './components/ClientReviews';
+import BookingSection from './components/BookingSection';
+import BookingModal from './components/BookingModal';
+import VehicleComparisonModal from './components/VehicleComparisonModal';
+import WishlistDrawer from './components/WishlistDrawer';
+import FAQ from './components/FAQ';
+import Footer from './components/Footer';
+import VideoModal from './components/VideoModal';
+import AmbientSound from './components/AmbientSound';
+import CustomCursor from './components/CustomCursor';
+import ScrollProgress from './components/ScrollProgress';
+import FloatingWhatsApp from './components/FloatingWhatsApp';
+import { Currency, CurrencyRate, Language, WishlistItem } from '../types';
+
+const CURRENCY_RATES: Record<Currency, CurrencyRate> = {
+  USD: { code: 'USD', symbol: '$', rate: 1 },
+  EUR: { code: 'EUR', symbol: '€', rate: 0.92 },
+  GBP: { code: 'GBP', symbol: '£', rate: 0.78 },
+  AUD: { code: 'AUD', symbol: 'A$', rate: 1.52 },
+  LKR: { code: 'LKR', symbol: 'Rs. ', rate: 305 },
+};
 
 export default function Home() {
+  const [currency, setCurrency] = useState<Currency>('USD');
+  const [language, setLanguage] = useState<Language>('EN');
+  const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
+  const [selectedCompareIds, setSelectedCompareIds] = useState<string[]>([]);
+
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
+  const [isWishlistOpen, setIsWishlistOpen] = useState(false);
+  const [isComparisonOpen, setIsComparisonOpen] = useState(false);
+  const [bookingOptions, setBookingOptions] = useState<{ tourId?: string; vehicleId?: string }>({});
+
+  const handleOpenBooking = (options?: { tourId?: string; vehicleId?: string }) => {
+    if (options) {
+      setBookingOptions(options);
+    } else {
+      setBookingOptions({});
+    }
+    setIsBookingModalOpen(true);
+  };
+
+  const handleToggleWishlist = (item: WishlistItem) => {
+    setWishlist((prev) => {
+      const exists = prev.some((w) => w.id === item.id);
+      if (exists) {
+        return prev.filter((w) => w.id !== item.id);
+      } else {
+        return [...prev, item];
+      }
+    });
+  };
+
+  const handleToggleCompare = (vehicleId: string) => {
+    setSelectedCompareIds((prev) => {
+      if (prev.includes(vehicleId)) {
+        return prev.filter((id) => id !== vehicleId);
+      } else {
+        if (prev.length >= 3) return [...prev.slice(1), vehicleId];
+        return [...prev, vehicleId];
+      }
+    });
+  };
+
+  const wishlistIds = wishlist.map((w) => w.id);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+    <main className="relative min-h-screen bg-[#FAFAF9] overflow-x-hidden selection:bg-[#0F766E] selection:text-[#D4AF37]">
+      {/* Luxury Preloader */}
+      <Preloader />
+
+      {/* Top Scroll Reading Progress */}
+      <ScrollProgress />
+
+      {/* Custom Glowing Cursor Trail */}
+      <CustomCursor />
+
+      {/* Persistent Floating WhatsApp Action Button */}
+      <FloatingWhatsApp />
+
+      {/* Ambient Soundscape Player */}
+      <AmbientSound />
+
+      {/* Translucent Glass Navigation Bar */}
+      <Navbar
+        onOpenBooking={handleOpenBooking}
+        currentCurrency={currency}
+        onCurrencyChange={setCurrency}
+        currentLanguage={language}
+        onLanguageChange={setLanguage}
+        wishlistCount={wishlist.length}
+        onOpenWishlist={() => setIsWishlistOpen(true)}
+        onOpenComparison={() => setIsComparisonOpen(true)}
+      />
+
+      {/* Hero Section */}
+      <Hero
+        onOpenBooking={handleOpenBooking}
+        onOpenVideo={() => setIsVideoModalOpen(true)}
+      />
+
+      {/* Animated Counter Stats Section */}
+      <Stats />
+
+      {/* Why Choose Us Section */}
+      <WhyChooseUs />
+
+      {/* Vehicle Fleet Showcase Section */}
+      <VehicleFleet
+        onOpenBooking={handleOpenBooking}
+        currency={currency}
+        currencyRates={CURRENCY_RATES}
+        wishlistIds={wishlistIds}
+        onToggleWishlist={handleToggleWishlist}
+        selectedCompareIds={selectedCompareIds}
+        onToggleCompare={handleToggleCompare}
+      />
+
+      {/* Flagship Tour Packages Section */}
+      <TourPackages
+        onOpenBooking={handleOpenBooking}
+        currency={currency}
+        currencyRates={CURRENCY_RATES}
+        wishlistIds={wishlistIds}
+        onToggleWishlist={handleToggleWishlist}
+      />
+
+      {/* Interactive Sri Lanka Vector Map */}
+      <InteractiveMap onOpenBooking={handleOpenBooking} />
+
+      {/* Vehicle & Tour Availability Calendar */}
+      <AvailabilityCalendar onOpenBooking={handleOpenBooking} />
+
+      {/* BIA Airport Transfer Fare Calculator */}
+      <AirportFareEstimator
+        onOpenBooking={handleOpenBooking}
+        currency={currency}
+        currencyRates={CURRENCY_RATES}
+      />
+
+      {/* 14 Destinations Showcase with Weather */}
+      <Destinations
+        onOpenBooking={handleOpenBooking}
+        wishlistIds={wishlistIds}
+        onToggleWishlist={handleToggleWishlist}
+      />
+
+      {/* Transport & Tour Services */}
+      <OurServices onOpenBooking={handleOpenBooking} />
+
+      {/* 5-Step Booking Process Timeline */}
+      <BookingProcess onOpenBooking={handleOpenBooking} />
+
+      {/* Our Journey (Completed Tours History) */}
+      <OurJourney />
+
+      {/* Masonry Gallery */}
+      <Gallery />
+
+      {/* Client Reviews Section */}
+      <ClientReviews />
+
+      {/* Inline Glass Reservation Section */}
+      <BookingSection
+        currency={currency}
+        currencyRates={CURRENCY_RATES}
+      />
+
+      {/* FAQ Accordion Section */}
+      <FAQ />
+
+      {/* Grand Luxury Footer */}
+      <Footer />
+
+      {/* Booking Modal Popup */}
+      <BookingModal
+        isOpen={isBookingModalOpen}
+        onClose={() => setIsBookingModalOpen(false)}
+        initialTourId={bookingOptions.tourId}
+        initialVehicleId={bookingOptions.vehicleId}
+        currency={currency}
+        currencyRates={CURRENCY_RATES}
+      />
+
+      {/* Vehicle Comparison Modal */}
+      <VehicleComparisonModal
+        isOpen={isComparisonOpen}
+        onClose={() => setIsComparisonOpen(false)}
+        selectedVehicleIds={selectedCompareIds}
+        onOpenBooking={handleOpenBooking}
+        currency={currency}
+        currencyRates={CURRENCY_RATES}
+      />
+
+      {/* Saved Wishlist Drawer */}
+      <WishlistDrawer
+        isOpen={isWishlistOpen}
+        onClose={() => setIsWishlistOpen(false)}
+        items={wishlist}
+        onRemoveItem={(id) => setWishlist((prev) => prev.filter((item) => item.id !== id))}
+        onOpenBooking={handleOpenBooking}
+        currency={currency}
+        currencyRates={CURRENCY_RATES}
+      />
+
+      {/* Cinematic Video Trailer Modal */}
+      <VideoModal
+        isOpen={isVideoModalOpen}
+        onClose={() => setIsVideoModalOpen(false)}
+      />
+    </main>
   );
 }
